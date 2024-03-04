@@ -1,0 +1,11 @@
+agent.vcxproj.filters
+agent.vcxproj.user
+.vs
+Debug
+x64
+agent.sln
+agent.vcxproj
+orion_link_db.vcxproj.filters
+orion_link_db.vcxproj.user
+orion_link_db.sln
+orion_link_db.vcxproj
