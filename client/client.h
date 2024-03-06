@@ -26,6 +26,10 @@ public:
 
     std::string InputPassword();
 
+    /// @brief 检查用户输入，防止注入攻击
+    /// @return true 安全，false有违规 
+    bool CheckInput(const std::string& in);
+
     /// @brief 最大登陆失败次数
     int max_login_times = 10;
 private:

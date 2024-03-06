@@ -1,6 +1,7 @@
 ﻿#include "client.h"
 
 #include <iostream>
+#include <sstream>
 #ifdef _WIN32
 #include <conio.h>
 #else
@@ -60,12 +61,35 @@ bool Client::Login()
         string username = "";
         cout << "input username: " << flush;
         cin >> username;
-        cout << "[" << username << "]" << endl;
 
+        /// 注入攻击
+        /// select id from t_user where user='root' and pass=md5('123456');
+        /// select id from t_user where user='1'or'1'='1' and pass=md5('1')or'c4ca4238a0b923820dcc509a6f75849b'=md5('1');
+        /// username = 1'or'1'='1
+        /// password = 1')or'c4ca4238a0b923820dcc509a6f75849b'=md5('1
         string password = "";
         cout << "input password: " << flush;
         password = InputPassword();
-        cout << "[" << password << "]" << endl;
+        cout << endl;
+        if (!CheckInput(password) || !CheckInput(username))
+        {
+            cout << "Injection attacks!" << endl;
+            continue;
+        }
+
+        stringstream sql;
+        sql << "select id from t_user where user='" << username;
+        sql << "' and pass=md5('" << password << "')";
+
+        auto rows = db_->GetResult(sql.str().c_str());
+        if (rows.size() > 0)
+        {
+            cout << "login success!" << endl;
+            is_login = true;
+            break;
+        }
+
+        cout << "login failed!" << endl;
     }
 
     return is_login;
@@ -85,6 +109,22 @@ std::string Client::InputPassword()
     }
 
     return password;
+}
+
+bool Client::CheckInput(const std::string& in)
+{
+    /// 限定不允许出现的字符
+    string str = "'\"()";
+    for (char c : str)
+    {
+        size_t found = in.find(c);
+        if (found != string::npos)  /// 发现违规字符
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 Client::Client()
