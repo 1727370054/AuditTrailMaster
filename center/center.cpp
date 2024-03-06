@@ -67,6 +67,14 @@ bool Center::Init()
     return db_->Query("set names utf8");
 }
 
+bool Center::AddDevice(std::string ip, std::string name)
+{
+    KVData data;
+    data["ip"] = ip.c_str();
+    data["name"] = name.c_str();
+    return db_->Insert(data, "t_device");
+}
+
 bool Center::CreateTable()
 {
     /// 创建策略表

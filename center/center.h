@@ -20,6 +20,9 @@ public:
 
     /// @brief 连接数据库
     bool Init();
+
+    /// @brief 添加设备
+    bool AddDevice(std::string ip, std::string name);
 private:
     /// @brief 创建策略表
     bool CreateTable();
