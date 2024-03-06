@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <thread>
+#include <regex>
 
 using namespace std;
 using namespace ol;
@@ -21,6 +22,16 @@ void Center::Main()
     }
     cout << "last id is: " << last_id << endl;
 
+    /// 获取审计策略
+    rows = db_->GetResult("select * from t_strategy");
+    /// 正则表达式map，key 审计事件名称
+    map<string, regex> strategys;
+    for (const auto& row : rows)
+    {
+        if (row[1].data && row[2].data)
+            strategys[row[1].data] = regex(row[2].data);
+    }
+
     for (;;)
     {
         /// 获取Agent存储的最新数据
@@ -30,7 +41,7 @@ void Center::Main()
         if (rows.empty())
         {
             this_thread::sleep_for(100ms);
-        }
+        }       
 
         for (const auto row : rows)
         {
@@ -38,6 +49,33 @@ void Center::Main()
             if (!row[2].data)
                 continue;
             cout << row[2].data << endl;
+
+            for (const auto& strategy : strategys)
+            {
+                /// 正则结果
+                smatch match;
+                string log = row[2].data;
+                /// 匹配正则，返回结果到match
+                bool ret = regex_match(log, match, strategy.second);
+                if (!ret || match.size() <= 0) continue;
+
+                cout << strategy.first << endl;
+
+                KVData data;
+                /// 审计成功的名称
+                data["name"] = strategy.first.c_str();
+                data["context"] = log.c_str();
+                if (row[1].data)
+                    data["device_ip"] = row[1].data;
+                /// 匹配结果：下标 0 是整个字符串 1 是第一个匹配结果
+                string user = match[2];
+                string from_ip = match[3];
+                string port = match[4];
+                data["user"] = user.c_str();
+                data["from_ip"] = from_ip.c_str();
+                data["port"] = port.c_str();
+                db_->Insert(data, "t_audit");
+            }
         }
     }
 }
@@ -134,7 +172,7 @@ bool Center::CreateTable()
 
     KVData data;
     data["name"] = "用户登陆失败";
-    data["strategy"] = ".*Failed password for (.+) from ([0-9.]+) port ([0-9]+).*";
+    data["strategy"] = ".*Failed (.+) for (.+) from ([0-9.]+) port ([0-9]+).*";
     ret = db_->Insert(data, "t_strategy");
     if (!ret)
     {
@@ -144,7 +182,7 @@ bool Center::CreateTable()
     }
 
     data["name"] = "用户登陆成功";
-    data["strategy"] = ".*Accepted password for (.+) from ([0-9.]+) port ([0-9]+).*";
+    data["strategy"] = ".*Accepted (.+) for (.+) from ([0-9.]+) port ([0-9]+).*";
     ret = db_->Insert(data, "t_strategy");
     if (!ret)
     {
