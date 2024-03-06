@@ -18,9 +18,12 @@ public:
 
     bool Install(std::string ip);
 
-    /// @brief 
+    /// @brief 连接数据库
     bool Init();
 private:
+    /// @brief 创建策略表
+    bool CreateTable();
+
     Center();
     Center(const Center&) = delete;
     Center& operator=(const Center&) = delete;

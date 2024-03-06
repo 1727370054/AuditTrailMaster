@@ -92,8 +92,7 @@ bool Agent::Init(string ip)
     /// 移动到结尾
     ifs.seekg(0, ios::end);
 
-    /// 创建日志表
-    return CreateTable();
+    return true;
 }
 
 void Agent::Main()
