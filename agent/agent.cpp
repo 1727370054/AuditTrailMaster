@@ -69,7 +69,7 @@ bool Agent::Init(string ip)
     if (db_ == nullptr)
         db_ = new OrionLinkDB;
     
-    if (!db_->Connect(ip.c_str(), "root", "123456", "agent"))
+    if (!db_->Connect(ip.c_str(), "root", "123456", "ATM"))
     {
         cerr << "Agent::Init failed! connect SQL error" << endl;
         return false;
