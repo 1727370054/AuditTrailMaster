@@ -13,3 +13,6 @@ orion_link_db.vcxproj
 /center/center.vcxproj.user
 /center/ip
 /center/center.vcxproj
+client.vcxproj.filters
+client.vcxproj.user
+client.vcxproj
