@@ -1,4 +1,4 @@
-#ifndef ORION_LINK_DB_H
+﻿#ifndef ORION_LINK_DB_H
 #define ORION_LINK_DB_H
 
 #include "orion_link_data.h"
@@ -110,7 +110,7 @@ namespace ol
         int GetInsertID();
 
         ///////////////////////////////////////////////////////////////////////////
-        /// @brief 生成 SQL 语句
+        /// @brief 生成 SQL 语句，字段名称前有 @ 比如 data["@time"] = now(), 其内容不加引号，一般用于函数调用
         /// @param kv map<std::string, OLData>
         /// @param table 表名
         /// @return 生成的 SQL 语句
