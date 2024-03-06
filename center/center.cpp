@@ -2,11 +2,45 @@
 
 #include <iostream>
 #include <fstream>
+#include <thread>
 
 using namespace std;
 using namespace ol;
 
 #define CENTER_CONF "ip"
+
+void Center::Main()
+{
+    /// 只审计运行之后的事件
+    /// 找到最后一个事件，取到id号
+    int last_id = 0;
+    auto rows = db_->GetResult("select max(id) from t_log");
+    if (rows[0][0].data)
+    {
+        last_id = atoi(rows[0][0].data);
+    }
+    cout << "last id is: " << last_id << endl;
+
+    for (;;)
+    {
+        /// 获取Agent存储的最新数据
+        char buf[1024] = { 0 };
+        sprintf(buf, "select * from t_log where id>%d", last_id);
+        auto rows = db_->GetResult(buf);
+        if (rows.empty())
+        {
+            this_thread::sleep_for(100ms);
+        }
+
+        for (const auto row : rows)
+        {
+            last_id = atoi(row[0].data);
+            if (!row[2].data)
+                continue;
+            cout << row[2].data << endl;
+        }
+    }
+}
 
 bool Center::Install(std::string ip)
 {

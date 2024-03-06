@@ -23,6 +23,8 @@ public:
 
     /// @brief 添加设备
     bool AddDevice(std::string ip, std::string name);
+
+    void Main();
 private:
     /// @brief 创建策略表
     bool CreateTable();

@@ -58,12 +58,16 @@ int main(int argc, char *argv[])
 		return 0;
 	}
 
-	Center::GetInstance()->Init();
+	if (!Center::GetInstance()->Init())
+	{
+		cerr << "Center init failed!" << endl;
+		return -1;
+	}
 
 	if (cmd == "add")
 	{
 		cout << "add device" << endl;
-		// ./center add 127.0.0.1 fileserver1
+		// ./center add 127.0.0.1 dev1
 		if (argc < 4)
 		{
 			Usage(ADD_DEVICE, argv[0]);
@@ -75,8 +79,11 @@ int main(int argc, char *argv[])
 		}
 		else
 			cout << "add device success!" << endl;
+
+		return 0;
 	}
 
+	Center::GetInstance()->Main();
 	return 0;
 }
 
