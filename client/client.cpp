@@ -186,6 +186,47 @@ void Client::c_search(std::vector<std::string> cmds)
     SplitLine("search");
 }
 
+void Client::c_like(std::vector<std::string> cmds)
+{
+    if (cmds.size() < 2) return;
+    string key = cmds[1];
+
+    /// 记录开始时间
+    auto start = system_clock::now();
+    string sql = "select * from t_log ";
+    string where = " where log like'%";
+    where += key;
+    where += "%'";
+    sql += where;
+
+    SplitLine("like");
+    auto rows = db_->GetResult(sql.c_str());
+    for (auto row : rows)
+    {
+        //遍历每一列
+        for (auto c : row)
+        {
+            if (c.data) cout << c.data << " ";
+        }
+        cout << endl;
+    }
+
+    /// 记录结束时间
+    auto end = system_clock::now();
+    auto duration = duration_cast<microseconds>(end - start);
+    cout << "times sec: " << double(duration.count()) * microseconds::period::num / microseconds::period::den << " s" << endl;
+
+    //统计总数
+    sql = "select count(*) from t_log ";
+    sql += where;
+    rows = db_->GetResult(sql.c_str());
+    int total = 0;
+    if (rows.size() > 0 && rows[0][0].data)
+        total = atoi(rows[0][0].data);
+    cout << "total :" << total << endl;
+    SplitLine("like");
+}
+
 void Client::SplitLine(std::string content)
 {
 #ifdef _WIN32
@@ -232,7 +273,7 @@ void Client::SplitLine(std::string content)
 void Client::Main()
 {
     /// 用户登陆
-    //if (!Login()) return;
+    if (!Login()) return;
 
     /// 分页显示 t_log
     // 获取用户输入
@@ -270,6 +311,14 @@ void Client::Main()
         else if (type == "search")
         {
             c_search(cmds);
+        }
+        else if (type == "like")
+        {
+            c_like(cmds);
+        }
+        else if (type == "quit")
+        {
+            exit(0);
         }
     }
 }

@@ -45,6 +45,8 @@ private:
     void c_test(std::vector<std::string>cmds);
     /// @brief search 10.0.0.1 搜索ip
     void c_search(std::vector<std::string>cmds);
+    /// @brief 模糊匹配
+    void c_like(std::vector<std::string>cmds);
 
     void SplitLine(std::string content);
 
